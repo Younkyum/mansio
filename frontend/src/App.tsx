@@ -101,6 +101,18 @@ export default function App() {
     return () => window.clearInterval(id);
   }, [initialized, pollActive]);
 
+  // getState() — the listener only needs activeSessionId at the moment
+  // visibility flips, so don't subscribe.
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState !== 'visible') return;
+      const { activeSessionId, clearSessionUnread } = useAppStore.getState();
+      if (activeSessionId) clearSessionUnread(activeSessionId);
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, []);
+
   const onMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     dragging.current = true;

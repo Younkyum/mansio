@@ -15,6 +15,7 @@ export function TabBar({ showMenuButton, onMenuClick }: TabBarProps) {
     createSession,
     deleteSession,
   } = useAppStore();
+  const sessionActivity = useAppStore((s) => s.sessionActivity);
   const { ui } = useEffectiveTheme();
 
   if (!activeWorkspaceId) return null;
@@ -58,7 +59,10 @@ export function TabBar({ showMenuButton, onMenuClick }: TabBarProps) {
         overflowX: 'auto',
         overflowY: 'hidden',
       }}>
-        {currentSessions.map((sess) => (
+        {currentSessions.map((sess) => {
+          const isActive = sess.id === activeSessionId;
+          const hasUnread = !isActive && sessionActivity[sess.id]?.unread === true;
+          return (
           <div
             key={sess.id}
             onClick={() => setActiveSession(sess.id)}
@@ -68,8 +72,8 @@ export function TabBar({ showMenuButton, onMenuClick }: TabBarProps) {
               gap: '6px',
               padding: '0 12px',
               cursor: 'pointer',
-              backgroundColor: sess.id === activeSessionId ? ui.tabActiveBg : 'transparent',
-              color: sess.id === activeSessionId ? ui.textPrimary : ui.textSecondary,
+              backgroundColor: isActive ? ui.tabActiveBg : 'transparent',
+              color: isActive ? ui.textPrimary : ui.textSecondary,
               borderRight: `1px solid ${ui.tabBorder}`,
               whiteSpace: 'nowrap',
               minWidth: 0,
@@ -77,6 +81,19 @@ export function TabBar({ showMenuButton, onMenuClick }: TabBarProps) {
               flexShrink: 0,
             }}
           >
+            {hasUnread && (
+              <span
+                aria-label="unread output"
+                title="New output"
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%',
+                  backgroundColor: ui.accent,
+                  flexShrink: 0,
+                }}
+              />
+            )}
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {sess.title}
             </span>
@@ -100,7 +117,8 @@ export function TabBar({ showMenuButton, onMenuClick }: TabBarProps) {
               >×</button>
             )}
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <button

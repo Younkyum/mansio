@@ -2,6 +2,12 @@ import { create } from 'zustand';
 import type { Workspace, Session } from '../types';
 import { api } from '../api/client';
 
+export interface SessionActivity {
+  unread: boolean;
+  lastOutputAt: number;
+  notifiedAt: number;
+}
+
 interface AppState {
   workspaces: Workspace[];
   sessions: Record<string, Session[]>;
@@ -10,6 +16,7 @@ interface AppState {
   // Last active session per workspace. Used both to restore the right tab when
   // switching workspaces and to pick which session's CWD the sidebar shows.
   activeSessionByWorkspace: Record<string, string>;
+  sessionActivity: Record<string, SessionActivity>;
   initialized: boolean;
 
   init: () => Promise<void>;
@@ -25,6 +32,9 @@ interface AppState {
   deleteSession: (id: string) => Promise<void>;
   renameSession: (id: string, title: string) => Promise<void>;
   setActiveSession: (id: string) => void;
+
+  markSessionOutput: (sessionId: string) => void;
+  clearSessionUnread: (sessionId: string) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -33,6 +43,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   activeWorkspaceId: null,
   activeSessionId: null,
   activeSessionByWorkspace: {},
+  sessionActivity: {},
   initialized: false,
 
   init: async () => {
@@ -93,18 +104,24 @@ export const useAppStore = create<AppState>((set, get) => ({
     await api.deleteWorkspace(id);
     set((s) => {
       const workspaces = s.workspaces.filter((w) => w.id !== id);
+      const removedSessions = s.sessions[id] ?? [];
       const sessions = { ...s.sessions };
       delete sessions[id];
       const activeSessionByWorkspace = { ...s.activeSessionByWorkspace };
       delete activeSessionByWorkspace[id];
       const nextWid = workspaces.length > 0 ? workspaces[0].id : null;
       const nextActive = nextWid ? activeSessionByWorkspace[nextWid] ?? sessions[nextWid]?.[0]?.id ?? null : null;
+      const sessionActivity = { ...s.sessionActivity };
+      for (const sess of removedSessions) {
+        delete sessionActivity[sess.id];
+      }
       return {
         workspaces,
         sessions,
         activeWorkspaceId: nextWid,
         activeSessionId: nextActive,
         activeSessionByWorkspace,
+        sessionActivity,
       };
     });
   },
@@ -183,10 +200,13 @@ export const useAppStore = create<AppState>((set, get) => ({
           delete activeSessionByWorkspace[wid];
         }
       }
+      const sessionActivity = { ...s.sessionActivity };
+      delete sessionActivity[id];
       return {
         sessions: { ...s.sessions, [wid]: sessions },
         activeSessionId: nextActive,
         activeSessionByWorkspace,
+        sessionActivity,
       };
     });
   },
@@ -210,12 +230,69 @@ export const useAppStore = create<AppState>((set, get) => ({
   setActiveSession: (id: string) => {
     set((s) => {
       const wid = s.activeWorkspaceId;
+      const prev = s.sessionActivity[id];
+      const sessionActivity =
+        prev && prev.unread
+          ? { ...s.sessionActivity, [id]: { ...prev, unread: false } }
+          : s.sessionActivity;
       return {
         activeSessionId: id,
         activeSessionByWorkspace: wid
           ? { ...s.activeSessionByWorkspace, [wid]: id }
           : s.activeSessionByWorkspace,
+        sessionActivity,
+      };
+    });
+  },
+
+  // Skip when the session is the active foreground — the user is already
+  // watching it, so there's nothing to badge.
+  markSessionOutput: (sessionId: string) => {
+    const state = get();
+    const isActiveForeground =
+      sessionId === state.activeSessionId &&
+      typeof document !== 'undefined' &&
+      document.visibilityState === 'visible';
+    if (isActiveForeground) return;
+    const now = Date.now();
+    set((s) => {
+      const prev = s.sessionActivity[sessionId];
+      return {
+        sessionActivity: {
+          ...s.sessionActivity,
+          [sessionId]: {
+            unread: true,
+            lastOutputAt: now,
+            notifiedAt: prev?.notifiedAt ?? 0,
+          },
+        },
+      };
+    });
+  },
+
+  clearSessionUnread: (sessionId: string) => {
+    set((s) => {
+      const prev = s.sessionActivity[sessionId];
+      if (!prev || !prev.unread) return s;
+      return {
+        sessionActivity: {
+          ...s.sessionActivity,
+          [sessionId]: { ...prev, unread: false },
+        },
       };
     });
   },
 }));
+
+export function sessionUnread(state: AppState, sessionId: string): boolean {
+  return state.sessionActivity[sessionId]?.unread === true;
+}
+
+export function workspaceUnread(state: AppState, workspaceId: string): boolean {
+  const list = state.sessions[workspaceId];
+  if (!list) return false;
+  for (const s of list) {
+    if (state.sessionActivity[s.id]?.unread === true) return true;
+  }
+  return false;
+}

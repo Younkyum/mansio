@@ -36,6 +36,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
     deleteWorkspace,
     renameWorkspace,
   } = useAppStore();
+  const sessionActivity = useAppStore((s) => s.sessionActivity);
   const { ui, mode, cycleMode } = useEffectiveTheme();
 
   const [creating, setCreating] = useState(false);
@@ -153,6 +154,9 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
           const activeSession =
             wsSessions.find((s) => s.id === activeId) ?? wsSessions[0];
           const cwd = activeSession?.cwd;
+          const isActive = ws.id === activeWorkspaceId;
+          const hasUnread =
+            !isActive && wsSessions.some((s) => sessionActivity[s.id]?.unread === true);
           return (
             <div
               key={ws.id}
@@ -235,6 +239,20 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
                     </span>
                   )}
                 </div>
+              )}
+              {hasUnread && (
+                <span
+                  aria-label="unread output"
+                  title="New output in this workspace"
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    backgroundColor: ui.accent,
+                    flexShrink: 0,
+                    marginLeft: 8,
+                  }}
+                />
               )}
             </div>
           );

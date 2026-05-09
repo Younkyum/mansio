@@ -6,6 +6,7 @@ import { WebLinksAddon } from '@xterm/addon-web-links';
 import type { ITheme } from '@xterm/xterm';
 import { darkTerminalTheme } from '../lib/theme';
 import { createShiftEnterHandler } from './shiftEnter';
+import { useAppStore } from '../stores/appStore';
 
 interface UseTerminalOptions {
   sessionId: string | null;
@@ -152,6 +153,8 @@ function connectWebSocket(inst: TerminalInstance, sid: string): void {
   ws.onmessage = (e) => {
     if (e.data instanceof ArrayBuffer) {
       inst.terminal.write(new Uint8Array(e.data));
+      // getState() — never subscribe; output frames must not trigger renders.
+      useAppStore.getState().markSessionOutput(sid);
     } else {
       try {
         const msg = JSON.parse(e.data);
