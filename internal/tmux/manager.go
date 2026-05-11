@@ -1,6 +1,8 @@
 package tmux
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"os/exec"
@@ -17,13 +19,14 @@ set -g mouse on
 `
 
 type Manager struct {
-	mu         sync.RWMutex
-	sessions   map[string]*Session
-	shell      string
-	configPath string
+	mu          sync.RWMutex
+	sessions    map[string]*Session
+	shell       string
+	configPath  string
+	socketLabel string
 }
 
-func NewManager() *Manager {
+func NewManager(dataDir string) *Manager {
 	shell := detectShell()
 	configPath, err := ensureTmuxConfig()
 	if err != nil {
@@ -31,9 +34,10 @@ func NewManager() *Manager {
 		fmt.Fprintf(os.Stderr, "tmux: config setup failed: %v\n", err)
 	}
 	return &Manager{
-		sessions:   make(map[string]*Session),
-		shell:      shell,
-		configPath: configPath,
+		sessions:    make(map[string]*Session),
+		shell:       shell,
+		configPath:  configPath,
+		socketLabel: deriveSocketLabel(dataDir),
 	}
 }
 
@@ -66,7 +70,7 @@ func (m *Manager) Attach(sessionID string, cols, rows uint16) (*Session, error) 
 		}
 	}
 
-	sess, err := newSession(m.configPath, name, cols, rows)
+	sess, err := newSession(m.configPath, m.socketLabel, name, cols, rows)
 	if err != nil {
 		return nil, err
 	}
@@ -167,13 +171,16 @@ func (m *Manager) tmuxSessionExists(name string) bool {
 	return cmd.Run() == nil
 }
 
-// `-f` is honoured only on the command that starts the server; subsequent invocations ignore it.
+// `-L` selects which tmux server we talk to and must be on every command; it isolates this
+// LociTerm instance from the user's other tmux sessions and from other LociTerm instances
+// pointing at a different data-dir. `-f` is honoured only on the command that starts the
+// server; subsequent invocations ignore it.
 func (m *Manager) tmuxCmd(args ...string) *exec.Cmd {
+	prefix := []string{"-L", m.socketLabel}
 	if m.configPath != "" {
-		full := append([]string{"-f", m.configPath}, args...)
-		return exec.Command("tmux", full...)
+		prefix = append(prefix, "-f", m.configPath)
 	}
-	return exec.Command("tmux", args...)
+	return exec.Command("tmux", append(prefix, args...)...)
 }
 
 func detectShell() string {
@@ -183,6 +190,19 @@ func detectShell() string {
 		}
 	}
 	return "/bin/sh"
+}
+
+// Derives a tmux socket label like "lociterm-<8hex>" from the data-dir. Each instance with a
+// distinct data-dir gets its own tmux server, so deletes in one instance can never reach
+// sessions owned by another. Falls back to a fixed label if the path can't be resolved —
+// still isolated from the user's default tmux server.
+func deriveSocketLabel(dataDir string) string {
+	abs, err := filepath.Abs(dataDir)
+	if err != nil {
+		abs = dataDir
+	}
+	sum := sha256.Sum256([]byte(abs))
+	return "lociterm-" + hex.EncodeToString(sum[:4])
 }
 
 // Writes tmux.conf if missing so users can edit it without us clobbering it on next launch.

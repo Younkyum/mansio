@@ -17,11 +17,12 @@ type Session struct {
 	closed bool
 }
 
-func newSession(configPath, tmuxName string, cols, rows uint16) (*Session, error) {
-	args := []string{"attach-session", "-t", tmuxName}
+func newSession(configPath, socketLabel, tmuxName string, cols, rows uint16) (*Session, error) {
+	args := []string{"-L", socketLabel}
 	if configPath != "" {
-		args = append([]string{"-f", configPath}, args...)
+		args = append(args, "-f", configPath)
 	}
+	args = append(args, "attach-session", "-t", tmuxName)
 	cmd := exec.Command("tmux", args...)
 	cmd.Env = append(os.Environ(), "TERM=xterm-256color")
 

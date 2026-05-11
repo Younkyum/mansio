@@ -32,7 +32,7 @@ func New(frontendFS fs.FS, dataDir string) *Server {
 	return &Server{
 		frontendFS: frontendFS,
 		store:      s,
-		tmuxMgr:    tmux.NewManager(),
+		tmuxMgr:    tmux.NewManager(dataDir),
 		auth:       newAuthManager(),
 	}
 }
