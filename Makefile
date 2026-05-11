@@ -16,6 +16,7 @@ build-frontend:
 	cd $(FRONTEND_DIR) && npm run build
 
 build-backend: build-frontend
+	rm -rf $(BUILD_DIR)/frontend/dist
 	mkdir -p $(BUILD_DIR)/frontend
 	cp -r $(FRONTEND_DIR)/dist $(BUILD_DIR)/frontend/dist
 	$(GO_BIN) build -ldflags="-s -w" -o lociterm ./$(BUILD_DIR)
