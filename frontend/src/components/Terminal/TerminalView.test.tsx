@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, cleanup, createEvent } from '@testing-library/react';
 import { TerminalView } from './TerminalView';
 
 vi.mock('../../hooks/useTerminal', () => ({
@@ -50,15 +50,36 @@ describe('TerminalView drag-and-drop', () => {
     expect(screen.getByText(/drop to upload/i)).toBeInTheDocument();
   });
 
-  it('hides overlay on dragleave', () => {
+  it('hides overlay on dragleave that truly exits the wrapper', () => {
     const { container } = render(<TerminalView sessionId="s1" />);
     const root = container.firstElementChild as HTMLElement;
 
     fireEvent.dragOver(root, { dataTransfer: makeDataTransfer([]) });
     expect(screen.getByText(/drop to upload/i)).toBeInTheDocument();
 
-    fireEvent.dragLeave(root, { dataTransfer: makeDataTransfer([]) });
+    // relatedTarget = null simulates the cursor leaving the window entirely.
+    fireEvent.dragLeave(root, { dataTransfer: makeDataTransfer([]), relatedTarget: null });
     expect(screen.queryByText(/drop to upload/i)).not.toBeInTheDocument();
+  });
+
+  it('keeps overlay visible when dragleave bubbles to wrapper while entering inner xterm child', () => {
+    // Repro: the old dragDepth-counter pattern flashed the overlay off here because
+    // dragleave on the parent fires BEFORE dragenter on the child, dropping depth to 0.
+    const { container } = render(<TerminalView sessionId="s1" />);
+    const root = container.firstElementChild as HTMLElement;
+    const inner = root.firstElementChild as HTMLElement;
+
+    fireEvent.dragEnter(root, { dataTransfer: makeDataTransfer([]) });
+    expect(screen.getByText(/drop to upload/i)).toBeInTheDocument();
+
+    // Cursor crosses from wrapper into inner xterm container — relatedTarget is
+    // still inside the wrapper, so the overlay must stay. jsdom's DragEvent
+    // doesn't honor `relatedTarget` from the init dictionary, so we patch the
+    // event object directly before dispatching.
+    const leaveEvent = createEvent.dragLeave(root, { dataTransfer: makeDataTransfer([]) });
+    Object.defineProperty(leaveEvent, 'relatedTarget', { value: inner });
+    fireEvent(root, leaveEvent);
+    expect(screen.getByText(/drop to upload/i)).toBeInTheDocument();
   });
 
   it('on drop, uploads each file and pastes path into terminal', async () => {

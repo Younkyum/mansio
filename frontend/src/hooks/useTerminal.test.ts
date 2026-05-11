@@ -5,6 +5,7 @@ import { useRef } from 'react';
 // Per-instance spies — captured by the @xterm mocks below and inspected by tests.
 interface FakeTerminal {
   id: number;
+  ctorOptions: Record<string, unknown>;
   element: HTMLElement | null;
   rows: number;
   options: { theme: unknown };
@@ -25,6 +26,7 @@ vi.mock('@xterm/xterm', () => {
   return {
     Terminal: class {
       id = nextId++;
+      ctorOptions: Record<string, unknown> = {};
       element: HTMLElement | null = null;
       rows = 24;
       options = { theme: undefined };
@@ -41,7 +43,8 @@ vi.mock('@xterm/xterm', () => {
       attachCustomKeyEventHandler = vi.fn();
       dispose = vi.fn();
       paste = vi.fn();
-      constructor() {
+      constructor(opts: Record<string, unknown> = {}) {
+        this.ctorOptions = opts;
         created.push(this as unknown as FakeTerminal);
       }
     },
@@ -161,6 +164,29 @@ describe('useTerminal — VS Code detach/attach pattern', () => {
     expect(a.refresh).toHaveBeenCalledWith(0, a.rows - 1);
     // We did not re-open A — it's still the cached instance.
     expect(a.open).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('Terminal constructor options', () => {
+  beforeEach(() => {
+    created.length = 0;
+    (globalThis as unknown as { WebSocket: typeof FakeWebSocket }).WebSocket = FakeWebSocket;
+    (globalThis as unknown as { ResizeObserver: typeof FakeResizeObserver }).ResizeObserver =
+      FakeResizeObserver;
+  });
+
+  afterEach(() => {
+    cleanup();
+    disposeTerminal('S');
+  });
+
+  it('configures scroll sensitivity so wheel/trackpad input is not capped at 1 line per tick', () => {
+    harness('S');
+    expect(created).toHaveLength(1);
+    const opts = created[0].ctorOptions;
+    expect(opts.scrollSensitivity).toBeGreaterThanOrEqual(3);
+    expect(opts.fastScrollSensitivity).toBeGreaterThanOrEqual(5);
+    expect(opts.smoothScrollDuration).toBe(0);
   });
 });
 

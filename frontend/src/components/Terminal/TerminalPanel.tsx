@@ -10,7 +10,10 @@ interface TerminalPanelProps {
 }
 
 export function TerminalPanel({ showMenuButton, onMenuClick }: TerminalPanelProps) {
-  const { activeSessionId } = useAppStore();
+  // Selector form: destructuring `useAppStore()` subscribes to the whole store
+  // and re-renders on every unread/toast mutation, which can disrupt an
+  // in-progress xterm text selection. We only need activeSessionId here.
+  const activeSessionId = useAppStore((s) => s.activeSessionId);
   const isMobile = useMediaQuery(MOBILE_QUERY);
 
   return (

@@ -36,30 +36,46 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadingName, setUploadingName] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const dragDepth = useRef(0);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const isFileDrag = (e: React.DragEvent<HTMLDivElement>) =>
+    Array.from(e.dataTransfer.types).includes('Files');
 
   const onDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    if (!Array.from(e.dataTransfer.types).includes('Files')) return;
+    if (!isFileDrag(e)) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
     setIsDragging(true);
   }, []);
 
   const onDragEnter = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    if (!Array.from(e.dataTransfer.types).includes('Files')) return;
-    dragDepth.current += 1;
+    if (!isFileDrag(e)) return;
     setIsDragging(true);
   }, []);
 
-  const onDragLeave = useCallback(() => {
-    dragDepth.current = Math.max(0, dragDepth.current - 1);
-    if (dragDepth.current === 0) setIsDragging(false);
+  // Don't use a dragenter/dragleave depth counter — moving the cursor into the
+  // inner xterm container fires dragleave on the outer wrapper BEFORE dragenter
+  // on the child, briefly dropping the depth to 0 and flashing the overlay off
+  // mid-drag. Instead: only hide when relatedTarget is null (cursor left the
+  // window) or no longer contained by the wrapper.
+  const onDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    const next = e.relatedTarget as Node | null;
+    if (next && wrapperRef.current?.contains(next)) return;
+    setIsDragging(false);
+  }, []);
+
+  // Stop the browser from promoting an in-progress xterm text selection into
+  // an HTML5 dragstart (which the user perceives as the selection "releasing"
+  // a few pixels into the drag). File drags from outside the page still fire
+  // — the types collection includes "Files" only for those.
+  const onDragStart = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    if (isFileDrag(e)) return;
+    e.preventDefault();
   }, []);
 
   const onDrop = useCallback(
     async (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
-      dragDepth.current = 0;
       setIsDragging(false);
 
       if (!sessionId) return;
@@ -83,9 +99,11 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
 
   return (
     <div
+      ref={wrapperRef}
       onDragOver={onDragOver}
       onDragEnter={onDragEnter}
       onDragLeave={onDragLeave}
+      onDragStart={onDragStart}
       onDrop={onDrop}
       style={{
         position: 'relative',
@@ -96,6 +114,7 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
         // column flush against the bezel without it.
         paddingLeft: isMobile ? 6 : 0,
         boxSizing: 'border-box',
+        userSelect: 'text',
       }}
     >
       <div
