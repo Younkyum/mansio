@@ -24,6 +24,21 @@ interface TerminalInstance {
   // IME composition state — see bindInputListeners for why these exist.
   composing: boolean;
   compositionSuppressUntil: number;
+  // Reconnect attempt counter for exponential backoff. Reset to 0 on
+  // successful ws.onopen. Used by nextReconnectDelay to grow the wait
+  // from 500ms up to a 10s cap so a flaky network or backend restart
+  // doesn't slam the server (and shrinks the Detach overwrite race
+  // window vs. the old fixed 2s reconnect).
+  reconnectAttempts: number;
+}
+
+// Exponential backoff schedule for WS reconnects: 500ms, 1s, 2s, 4s, 8s, 10s…
+// Capped at 10s with ±20% jitter so multiple tabs reconnecting in unison
+// don't all fire at the same instant.
+export function nextReconnectDelay(attempts: number): number {
+  const base = Math.min(10_000, 500 * Math.pow(2, attempts));
+  const jitter = base * 0.2 * (Math.random() * 2 - 1);
+  return Math.max(250, Math.floor(base + jitter));
 }
 
 const instances = new Map<string, TerminalInstance>();
@@ -52,6 +67,7 @@ function createInstance(theme: ITheme): TerminalInstance {
     listenersBound: false,
     composing: false,
     compositionSuppressUntil: 0,
+    reconnectAttempts: 0,
   };
 }
 
@@ -143,6 +159,7 @@ function connectWebSocket(inst: TerminalInstance, sid: string): void {
   ws.binaryType = 'arraybuffer';
 
   ws.onopen = () => {
+    inst.reconnectAttempts = 0;
     inst.fitAddon.fit();
     const dims = inst.fitAddon.proposeDimensions();
     if (dims) {
@@ -159,7 +176,13 @@ function connectWebSocket(inst: TerminalInstance, sid: string): void {
       try {
         const msg = JSON.parse(e.data);
         if (msg.type === 'attached') {
-          console.log('Terminal attached');
+          if (msg.recreated) {
+            // Backend had to spawn a brand-new tmux session — prior shell is
+            // gone. Surface this inline so the user doesn't think they just
+            // got a silent reset. The dim ANSI ensures it doesn't look like
+            // shell output.
+            inst.terminal.writeln('\x1b[2m[lociterm] previous tmux session was lost; started fresh\x1b[0m');
+          }
         }
       } catch {
         // ignore non-JSON text frames
@@ -169,11 +192,13 @@ function connectWebSocket(inst: TerminalInstance, sid: string): void {
 
   ws.onclose = () => {
     clearTimeout(inst.reconnectTimer);
+    const delay = nextReconnectDelay(inst.reconnectAttempts);
+    inst.reconnectAttempts++;
     inst.reconnectTimer = window.setTimeout(() => {
       if (instances.has(sid)) {
         connectWebSocket(inst, sid);
       }
-    }, 2000);
+    }, delay);
   };
 
   inst.ws = ws;

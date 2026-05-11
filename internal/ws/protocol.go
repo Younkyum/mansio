@@ -7,4 +7,9 @@ type ControlMessage struct {
 	Shell   string `json:"shell,omitempty"`
 	Message string `json:"message,omitempty"`
 	Title   string `json:"title,omitempty"`
+	// Recreated is set on `attached` frames when the backend had to spawn a
+	// fresh tmux session because the prior one was gone. The frontend uses
+	// this to surface a "session was lost, started fresh" banner instead of
+	// silently dropping the user into an empty shell.
+	Recreated bool `json:"recreated,omitempty"`
 }

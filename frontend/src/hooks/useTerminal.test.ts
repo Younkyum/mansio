@@ -88,7 +88,7 @@ class FakeResizeObserver {
 }
 
 // useTerminal stores instances in a module-level Map; reset between tests.
-import { useTerminal, disposeTerminal } from './useTerminal';
+import { useTerminal, disposeTerminal, nextReconnectDelay } from './useTerminal';
 
 function harness(sessionId: string | null) {
   return renderHook(
@@ -161,5 +161,43 @@ describe('useTerminal — VS Code detach/attach pattern', () => {
     expect(a.refresh).toHaveBeenCalledWith(0, a.rows - 1);
     // We did not re-open A — it's still the cached instance.
     expect(a.open).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('nextReconnectDelay (exponential backoff with jitter)', () => {
+  it('grows as 500 * 2^attempts, capped at 10s', () => {
+    // Force jitter to zero (Math.random()=0.5 → jitter coefficient 0).
+    const spy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    try {
+      expect(nextReconnectDelay(0)).toBe(500);
+      expect(nextReconnectDelay(1)).toBe(1000);
+      expect(nextReconnectDelay(2)).toBe(2000);
+      expect(nextReconnectDelay(3)).toBe(4000);
+      expect(nextReconnectDelay(4)).toBe(8000);
+      expect(nextReconnectDelay(5)).toBe(10_000); // cap holds
+      expect(nextReconnectDelay(6)).toBe(10_000);
+      expect(nextReconnectDelay(99)).toBe(10_000);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('floors at 250ms even with worst-case negative jitter', () => {
+    const spy = vi.spyOn(Math, 'random').mockReturnValue(0); // jitter coeff = -1
+    try {
+      const d = nextReconnectDelay(0);
+      // base=500, jitter=-100, raw=400; floor of 250 must keep us above 250.
+      expect(d).toBeGreaterThanOrEqual(250);
+      expect(d).toBeLessThanOrEqual(500);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('produces a spread when many tabs reconnect at once (jitter desyncs them)', () => {
+    // 100 reconnect timings at attempt=2 should not all be identical.
+    const delays = new Set<number>();
+    for (let i = 0; i < 100; i++) delays.add(nextReconnectDelay(2));
+    expect(delays.size).toBeGreaterThan(1);
   });
 });

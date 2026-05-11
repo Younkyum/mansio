@@ -72,6 +72,24 @@ func (s *Session) Close() {
 	}
 }
 
+// ClosePTMX closes only the pty side, which unblocks any goroutine stuck in
+// Read/Write. Unlike Close, it does NOT kill the tmux attach client — that
+// happens later when Close runs from the manager's Detach. The split exists
+// because the WS handler needs to break its Read/Write loops promptly when
+// either side of the pipe dies, but Close (which also kills the process and
+// Waits) is owned by the manager so the compare-and-close identity check is
+// honoured first.
+func (s *Session) ClosePTMX() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.closed {
+		return
+	}
+	// Note: we intentionally do not set s.closed here. Close still needs to
+	// run to kill the process and reap it. ptmx.Close is idempotent.
+	_ = s.ptmx.Close()
+}
+
 func (s *Session) Done() <-chan error {
 	ch := make(chan error, 1)
 	go func() {

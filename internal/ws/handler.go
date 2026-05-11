@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/younkyumjin/lociterm/internal/tmux"
@@ -39,21 +40,40 @@ func (h *Handler) HandleTerminal(w http.ResponseWriter, r *http.Request) {
 
 	var cols, rows uint16 = 120, 40
 
-	sess, err := h.tmuxMgr.Attach(sessionID, cols, rows)
+	attach, err := h.tmuxMgr.Attach(sessionID, cols, rows)
 	if err != nil {
 		log.Printf("tmux attach error for %s: %v", sessionID, err)
 		conn.WriteJSON(ControlMessage{Type: "error", Message: err.Error()})
 		return
 	}
-	defer h.tmuxMgr.Detach(sessionID)
+	sess := attach.Session
+	// Pass the captured *Session back to Detach so a stale defer from an old
+	// handler can't take down a newer handler's attach (compare-and-close).
+	defer h.tmuxMgr.Detach(sessionID, sess)
 
-	conn.WriteJSON(ControlMessage{Type: "attached", Shell: "tmux"})
+	conn.WriteJSON(ControlMessage{Type: "attached", Shell: "tmux", Recreated: attach.Recreated})
 
+	// done is closed by whichever side dies first. sync.Once makes the close
+	// idempotent so both goroutines can safely call shutdown(). When one side
+	// returns, shutdown() also closes the underlying conn and ptmx so the
+	// *other* goroutine is forced out of its blocking read instead of hanging
+	// until tmux happens to emit output.
 	done := make(chan struct{})
+	var once sync.Once
+	shutdown := func() {
+		once.Do(func() {
+			close(done)
+			// Closing conn unblocks the WS-read goroutine.
+			conn.Close()
+			// Closing ptmx unblocks the PTY-read goroutine. Without this,
+			// dead-WS + idle-tmux leaves sess.Read pinned forever.
+			sess.ClosePTMX()
+		})
+	}
 
 	// PTY stdout -> WebSocket (binary frames)
 	go func() {
-		defer close(done)
+		defer shutdown()
 		buf := make([]byte, 32*1024)
 		for {
 			n, err := sess.Read(buf)
@@ -68,6 +88,7 @@ func (h *Handler) HandleTerminal(w http.ResponseWriter, r *http.Request) {
 
 	// WebSocket -> PTY stdin or control handler
 	go func() {
+		defer shutdown()
 		for {
 			msgType, data, err := conn.ReadMessage()
 			if err != nil {
