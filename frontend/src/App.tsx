@@ -16,7 +16,7 @@ export default function App() {
   const { ui } = useEffectiveTheme();
   const isMobile = useMediaQuery(MOBILE_QUERY);
 
-  const PERM_DISMISS_KEY = 'lociterm.permissionBannerDismissed';
+  const PERM_DISMISS_KEY = 'mansio.permissionBannerDismissed';
 
   const [authState, setAuthState] = useState<AuthState>('loading');
   const [permWarning, setPermWarning] = useState<string | null>(null);
@@ -162,7 +162,7 @@ export default function App() {
         fontFamily: "'JetBrains Mono', monospace",
         padding: '24px',
       }}>
-        Starting LociTerm...
+        Starting Mansio...
       </div>
     );
   }
@@ -223,7 +223,7 @@ export default function App() {
         }}>
           <span style={{ fontWeight: 600, flexShrink: 0 }}>Permission</span>
           <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            Full Disk Access required — System Settings ▸ Privacy & Security ▸ Full Disk Access ▸ add <code style={{ background: 'rgba(0,0,0,0.12)', padding: '0 4px', borderRadius: 2 }}>/usr/local/bin/lociterm</code>
+            Full Disk Access required — System Settings ▸ Privacy & Security ▸ Full Disk Access ▸ add <code style={{ background: 'rgba(0,0,0,0.12)', padding: '0 4px', borderRadius: 2 }}>/usr/local/bin/mansio</code>
           </span>
           <button
             onClick={checkPermissions}

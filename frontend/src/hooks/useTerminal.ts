@@ -263,7 +263,7 @@ async function connectWebSocket(inst: TerminalInstance, sid: string): Promise<vo
             // gone. Surface this inline so the user doesn't think they just
             // got a silent reset. The dim ANSI ensures it doesn't look like
             // shell output.
-            inst.terminal.writeln('\x1b[2m[lociterm] previous tmux session was lost; started fresh\x1b[0m');
+            inst.terminal.writeln('\x1b[2m[mansio] previous tmux session was lost; started fresh\x1b[0m');
           }
         }
       } catch {

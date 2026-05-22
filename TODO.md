@@ -1,4 +1,4 @@
-# TODO — Loci Terminal
+# TODO — Mansio
 
 ## Phase 2: Code Review Panel (Next)
 
@@ -31,7 +31,7 @@
 
 ## 인프라 & 배포
 
-- [ ] Docker Compose에 환경변수로 초기 비밀번호 설정 (`LOCITERM_PASSWORD`)
+- [ ] Docker Compose에 환경변수로 초기 비밀번호 설정 (`MANSIO_PASSWORD`)
 - [ ] ARM64 + AMD64 멀티 아키텍처 Docker 이미지
 - [ ] CI/CD 파이프라인 (GitHub Actions: 테스트 → 빌드 → Docker push)
 - [ ] Helm chart (Kubernetes 배포)

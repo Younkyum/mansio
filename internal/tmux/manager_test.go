@@ -30,8 +30,8 @@ func TestDeriveSocketLabel_StableAcrossEquivalentPaths(t *testing.T) {
 
 func TestDeriveSocketLabel_HasLociPrefix(t *testing.T) {
 	got := deriveSocketLabel("/tmp/anything")
-	if !strings.HasPrefix(got, "lociterm-") {
-		t.Fatalf("label %q missing lociterm- prefix; would collide with the user's default tmux server", got)
+	if !strings.HasPrefix(got, "mansio-") {
+		t.Fatalf("label %q missing mansio- prefix; would collide with the user's default tmux server", got)
 	}
 }
 
@@ -45,7 +45,7 @@ func requireTmux(t *testing.T) {
 }
 
 // newTestManager spins up a Manager pointed at a per-test temp dir so each
-// test runs against its own isolated tmux server (-L lociterm-<hash>). Race
+// test runs against its own isolated tmux server (-L mansio-<hash>). Race
 // tests can no longer collide with parallel runs or stray sessions on the
 // user's default tmux server.
 func newTestManager(t *testing.T) *Manager {

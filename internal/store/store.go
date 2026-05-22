@@ -1,6 +1,6 @@
 package store
 
-import "github.com/younkyumjin/lociterm/internal/model"
+import "github.com/younkyumjin/mansio/internal/model"
 
 type Store interface {
 	// Workspaces

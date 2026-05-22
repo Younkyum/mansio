@@ -26,7 +26,7 @@ assignees: ''
 
 ## Environment
 
-- **LociTerm version / commit:** <!-- e.g. v0.1.0 or commit SHA -->
+- **Mansio version / commit:** <!-- e.g. v0.1.0 or commit SHA -->
 - **Install mode:** <!-- native (Linux/macOS) or Docker -->
 - **OS:** <!-- e.g. Ubuntu 24.04, macOS 14.5 -->
 - **Browser:** <!-- e.g. Chrome 130, Safari 18, Firefox 131 -->
@@ -36,9 +36,9 @@ assignees: ''
 ## Logs
 
 <!--
-  Native (Linux):  journalctl -u lociterm@<user> -e
-  Native (macOS):  tail -n 200 ~/Library/Logs/lociterm/stderr.log
-  Docker:          docker compose logs --tail=200 lociterm
+  Native (Linux):  journalctl -u mansio@<user> -e
+  Native (macOS):  tail -n 200 ~/Library/Logs/mansio/stderr.log
+  Docker:          docker compose logs --tail=200 mansio
 -->
 
 ```

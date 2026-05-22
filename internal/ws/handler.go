@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/younkyumjin/lociterm/internal/tmux"
+	"github.com/younkyumjin/mansio/internal/tmux"
 )
 
 const writeTimeout = 30 * time.Second

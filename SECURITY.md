@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-LociTerm is pre-1.0. Only the latest commit on `main` receives security fixes.
+Mansio is pre-1.0. Only the latest commit on `main` receives security fixes.
 
 ## Reporting a vulnerability
 
@@ -10,8 +10,8 @@ LociTerm is pre-1.0. Only the latest commit on `main` receives security fixes.
 
 Instead, report privately via one of the following:
 
-- **GitHub Security Advisories** — https://github.com/Younkyum/Loci-Terminal/security/advisories/new (preferred — encrypted, threaded)
-- **Email** — `jinyounkyum@gmail.com` with the subject prefix `[lociterm-security]`
+- **GitHub Security Advisories** — https://github.com/Younkyum/Mansio/security/advisories/new (preferred — encrypted, threaded)
+- **Email** — `jinyounkyum@gmail.com` with the subject prefix `[mansio-security]`
 
 Please include:
 
@@ -30,14 +30,14 @@ Please include:
 
 In scope:
 
-- The Go server (`internal/`, `cmd/lociterm/`).
+- The Go server (`internal/`, `cmd/mansio/`).
 - The React frontend (`frontend/`).
 - The deployment scripts (`deploy/`) and `Dockerfile`.
 - The bundled WebSocket protocol and REST API.
 
 Out of scope:
 
-- Vulnerabilities that require local access to the host already running LociTerm (LociTerm grants SSH-equivalent access by design when installed natively — this is documented).
+- Vulnerabilities that require local access to the host already running Mansio (Mansio grants SSH-equivalent access by design when installed natively — this is documented).
 - Issues in upstream dependencies — please report those upstream first; we'll bump versions when patches land.
 - Social engineering, physical attacks, DoS via resource exhaustion against an unprotected server.
 
@@ -46,4 +46,4 @@ Out of scope:
 - Always front the server with HTTPS in production (Cloudflare Tunnel is the easiest path).
 - Restrict port 8080 to a private network or VPN whenever possible.
 - Use a strong, unique password — it controls SSH-equivalent access.
-- Keep `tmux`, your OS, and LociTerm itself up to date.
+- Keep `tmux`, your OS, and Mansio itself up to date.

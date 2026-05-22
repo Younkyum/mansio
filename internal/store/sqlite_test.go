@@ -277,7 +277,7 @@ func TestDatabaseFileCreated(t *testing.T) {
 	s, _ := NewSQLite(dir)
 	defer s.Close()
 
-	_, err := os.Stat(dir + "/lociterm.db")
+	_, err := os.Stat(dir + "/mansio.db")
 	if os.IsNotExist(err) {
 		t.Error("database file should exist")
 	}

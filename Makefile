@@ -2,7 +2,7 @@
 
 FRONTEND_DIR = frontend
 GO_BIN ?= go
-BUILD_DIR = cmd/lociterm
+BUILD_DIR = cmd/mansio
 HOST ?= 127.0.0.1
 PORT ?= 8080
 
@@ -21,7 +21,7 @@ build-backend: build-frontend
 	rm -rf $(BUILD_DIR)/frontend/dist
 	mkdir -p $(BUILD_DIR)/frontend
 	cp -r $(FRONTEND_DIR)/dist $(BUILD_DIR)/frontend/dist
-	$(GO_BIN) build -ldflags="-s -w" -o lociterm ./$(BUILD_DIR)
+	$(GO_BIN) build -ldflags="-s -w" -o mansio ./$(BUILD_DIR)
 
 test: test-go test-frontend
 
@@ -32,6 +32,6 @@ test-frontend:
 	cd $(FRONTEND_DIR) && npm test
 
 clean:
-	rm -f lociterm
+	rm -f mansio
 	rm -rf $(BUILD_DIR)/frontend
 	rm -rf $(FRONTEND_DIR)/dist

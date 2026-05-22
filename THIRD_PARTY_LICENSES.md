@@ -1,12 +1,12 @@
 # Third-Party Licenses
 
-LociTerm is licensed under [GPL-3.0-or-later](LICENSE). It bundles or
+Mansio is licensed under [GPL-3.0-or-later](LICENSE). It bundles or
 depends on the following third-party components, each licensed under
 the terms shown below. All listed licenses are compatible with GPL-3.0.
 
 ---
 
-## Backend (Go) — statically linked into the `lociterm` binary
+## Backend (Go) — statically linked into the `mansio` binary
 
 | Module | Version | License | Source |
 |---|---|---|---|
@@ -49,9 +49,9 @@ cache and are reproduced in releases per their requirements.
 
 ## External runtime dependencies — invoked, not bundled
 
-These programs are executed by LociTerm at runtime but are **not**
+These programs are executed by Mansio at runtime but are **not**
 linked, embedded, or modified by it. Their licenses do not affect the
-license of LociTerm itself; they are listed here for completeness.
+license of Mansio itself; they are listed here for completeness.
 
 | Tool | License | Required by |
 |---|---|---|

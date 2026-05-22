@@ -1,8 +1,8 @@
-/lociterm
+/mansio
 data/
 .omc/
 .claude/
-cmd/lociterm/frontend/
+cmd/mansio/frontend/
 frontend/dist/
 frontend/node_modules/
 *.db

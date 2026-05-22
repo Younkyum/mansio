@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	_ "modernc.org/sqlite"
 
-	"github.com/younkyumjin/lociterm/internal/model"
+	"github.com/younkyumjin/mansio/internal/model"
 )
 
 const schema = `
@@ -45,7 +45,7 @@ type SQLiteStore struct {
 }
 
 func NewSQLite(dataDir string) (*SQLiteStore, error) {
-	dbPath := filepath.Join(dataDir, "lociterm.db")
+	dbPath := filepath.Join(dataDir, "mansio.db")
 	db, err := sql.Open("sqlite", dbPath+"?_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)&_pragma=foreign_keys(ON)")
 	if err != nil {
 		return nil, fmt.Errorf("open database: %w", err)

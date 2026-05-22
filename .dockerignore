@@ -1,6 +1,6 @@
-lociterm
+mansio
 data/
-cmd/lociterm/frontend/
+cmd/mansio/frontend/
 frontend/node_modules/
 frontend/dist/
 .git

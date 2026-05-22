@@ -1,6 +1,6 @@
-# Contributing to LociTerm
+# Contributing to Mansio
 
-Thanks for taking the time to contribute! This document covers the basics of working on LociTerm.
+Thanks for taking the time to contribute! This document covers the basics of working on Mansio.
 
 ## Code of conduct
 
@@ -18,8 +18,8 @@ Be respectful. Assume good intent. We follow the spirit of the [Contributor Cove
 Prerequisites: Go 1.22+, Node.js 20+, tmux, git.
 
 ```bash
-git clone https://github.com/Younkyum/Loci-Terminal.git
-cd Loci-Terminal
+git clone https://github.com/Younkyum/Mansio.git
+cd Mansio
 
 # Two terminals
 make dev-backend    # Go server on :8080
@@ -29,7 +29,7 @@ make dev-frontend   # Vite dev server (proxies API + WebSocket to :8080)
 Single-binary build:
 
 ```bash
-make build          # → ./lociterm
+make build          # → ./mansio
 ```
 
 ## Tests

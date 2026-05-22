@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/younkyumjin/lociterm/internal/tmux"
+	"github.com/younkyumjin/mansio/internal/tmux"
 )
 
 func TestSetNoDelayCalled(t *testing.T) {
@@ -63,7 +63,7 @@ func TestWriteDeadline(t *testing.T) {
 	if err := conn.SetWriteDeadline(time.Now().Add(2 * time.Second)); err != nil {
 		t.Fatalf("set client write deadline: %v", err)
 	}
-	command := fmt.Sprintf("%q lociterm-write-deadline\n", yesPath)
+	command := fmt.Sprintf("%q mansio-write-deadline\n", yesPath)
 	if err := conn.WriteMessage(websocket.BinaryMessage, []byte(command)); err != nil {
 		t.Fatalf("start output command: %v", err)
 	}

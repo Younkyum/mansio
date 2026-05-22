@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/younkyumjin/lociterm/internal/server"
+	"github.com/younkyumjin/mansio/internal/server"
 )
 
 //go:embed all:frontend/dist
@@ -45,7 +45,7 @@ func main() {
 	}
 
 	go func() {
-		log.Printf("LociTerm listening on http://%s", addr)
+		log.Printf("Mansio listening on http://%s", addr)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("server error: %v", err)
 		}

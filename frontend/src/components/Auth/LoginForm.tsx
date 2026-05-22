@@ -61,7 +61,7 @@ export function LoginForm({ needsSetup, onSuccess }: LoginFormProps) {
           textAlign: 'center',
           marginBottom: '8px',
         }}>
-          LociTerm
+          Mansio
         </div>
 
         <div style={{

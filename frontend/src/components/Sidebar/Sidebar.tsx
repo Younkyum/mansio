@@ -295,7 +295,7 @@ export function Sidebar({ onCloseMobile }: SidebarProps) {
         gap: 8,
       }}>
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          LociTerm
+          Mansio
         </span>
         <button
           onClick={cycleMode}

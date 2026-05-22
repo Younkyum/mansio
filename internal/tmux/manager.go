@@ -14,7 +14,7 @@ import (
 const sessionPrefix = "lt_"
 
 // Without `mouse on`, tmux's alt-screen triggers xterm.js's wheel→arrow-key translation.
-const tmuxConfigContents = `# Managed by LociTerm — do not edit.
+const tmuxConfigContents = `# Managed by Mansio — do not edit.
 set -g mouse on
 `
 
@@ -256,7 +256,7 @@ func (m *Manager) tmuxSessionExists(name string) bool {
 }
 
 // `-L` selects which tmux server we talk to and must be on every command; it isolates this
-// LociTerm instance from the user's other tmux sessions and from other LociTerm instances
+// Mansio instance from the user's other tmux sessions and from other Mansio instances
 // pointing at a different data-dir. `-f` is honoured only on the command that starts the
 // server; subsequent invocations ignore it.
 func (m *Manager) tmuxCmd(args ...string) *exec.Cmd {
@@ -276,7 +276,7 @@ func detectShell() string {
 	return "/bin/sh"
 }
 
-// Derives a tmux socket label like "lociterm-<8hex>" from the data-dir. Each instance with a
+// Derives a tmux socket label like "mansio-<8hex>" from the data-dir. Each instance with a
 // distinct data-dir gets its own tmux server, so deletes in one instance can never reach
 // sessions owned by another. Falls back to a fixed label if the path can't be resolved —
 // still isolated from the user's default tmux server.
@@ -286,7 +286,7 @@ func deriveSocketLabel(dataDir string) string {
 		abs = dataDir
 	}
 	sum := sha256.Sum256([]byte(abs))
-	return "lociterm-" + hex.EncodeToString(sum[:4])
+	return "mansio-" + hex.EncodeToString(sum[:4])
 }
 
 // Writes tmux.conf if missing so users can edit it without us clobbering it on next launch.
@@ -295,7 +295,7 @@ func ensureTmuxConfig() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("user config dir: %w", err)
 	}
-	dir := filepath.Join(base, "lociterm")
+	dir := filepath.Join(base, "mansio")
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return "", fmt.Errorf("mkdir %s: %w", dir, err)
 	}

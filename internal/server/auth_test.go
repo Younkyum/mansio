@@ -65,8 +65,8 @@ func TestSessionCookie(t *testing.T) {
 			t.Fatal("no cookies set")
 		}
 		c := cookies[0]
-		if c.Name != "lociterm_session" {
-			t.Errorf("cookie name = %q, want %q", c.Name, "lociterm_session")
+		if c.Name != "mansio_session" {
+			t.Errorf("cookie name = %q, want %q", c.Name, "mansio_session")
 		}
 		if c.Value != "test-token" {
 			t.Errorf("cookie value = %q, want %q", c.Value, "test-token")
@@ -90,7 +90,7 @@ func TestSessionCookie(t *testing.T) {
 
 	t.Run("get token from request", func(t *testing.T) {
 		req := httptest.NewRequest("GET", "/", nil)
-		req.AddCookie(&http.Cookie{Name: "lociterm_session", Value: "my-token"})
+		req.AddCookie(&http.Cookie{Name: "mansio_session", Value: "my-token"})
 		token := am.getTokenFromRequest(req)
 		if token != "my-token" {
 			t.Errorf("token = %q, want %q", token, "my-token")

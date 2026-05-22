@@ -10,10 +10,10 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/younkyumjin/lociterm/internal/api"
-	"github.com/younkyumjin/lociterm/internal/store"
-	"github.com/younkyumjin/lociterm/internal/tmux"
-	"github.com/younkyumjin/lociterm/internal/ws"
+	"github.com/younkyumjin/mansio/internal/api"
+	"github.com/younkyumjin/mansio/internal/store"
+	"github.com/younkyumjin/mansio/internal/tmux"
+	"github.com/younkyumjin/mansio/internal/ws"
 )
 
 type Server struct {
@@ -144,7 +144,7 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 		for _, dir := range testDirs {
 			if _, err := os.ReadDir(dir); err != nil {
 				permOk = false
-				permMsg = "Full Disk Access required. Go to System Settings > Privacy & Security > Full Disk Access and add lociterm (/usr/local/bin/lociterm)."
+				permMsg = "Full Disk Access required. Go to System Settings > Privacy & Security > Full Disk Access and add mansio (/usr/local/bin/mansio)."
 				break
 			}
 		}

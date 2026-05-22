@@ -1,11 +1,11 @@
 [Unit]
-Description=LociTerm - Web-based Multi-Terminal Server
+Description=Mansio - Web-based Multi-Terminal Server
 After=network.target
 
 [Service]
 Type=simple
 User=%i
-ExecStart=/usr/local/bin/lociterm --host 127.0.0.1 --port 8080 --data-dir /var/lib/lociterm
+ExecStart=/usr/local/bin/mansio --host 127.0.0.1 --port 8080 --data-dir /var/lib/mansio
 Restart=on-failure
 RestartSec=5
 Environment=HOME=%h

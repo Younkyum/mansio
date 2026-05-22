@@ -1,4 +1,4 @@
-module github.com/younkyumjin/lociterm
+module github.com/younkyumjin/mansio
 
 go 1.26.3
 

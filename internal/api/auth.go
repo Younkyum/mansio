@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/younkyumjin/lociterm/internal/store"
+	"github.com/younkyumjin/mansio/internal/store"
 )
 
 type AuthHandler struct {

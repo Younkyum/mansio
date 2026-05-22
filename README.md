@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="frontend/public/icon-512.png?v=2" alt="LociTerm" width="128" />
+  <img src="frontend/public/icon-512.png?v=2" alt="Mansio" width="128" />
 </p>
 
-<h1 align="center">LociTerm</h1>
+<h1 align="center">Mansio</h1>
 
 <p align="center">
   <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">中文</a> · <strong>English</strong>
@@ -23,13 +23,13 @@
 ## Screenshots
 
 <p align="center">
-  <img src="docs/screenshots/desktop.png?v=2" alt="LociTerm desktop UI — sidebar, tab bar, and persistent terminal" width="820" />
+  <img src="docs/screenshots/desktop.png?v=2" alt="Mansio desktop UI — sidebar, tab bar, and persistent terminal" width="820" />
   <br />
   <em>Desktop — workspaces, tab bar, and a tmux-backed terminal panel.</em>
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/mobile.png?v=2" alt="LociTerm mobile UI — collapsible sidebar with dedicated input bar" width="320" />
+  <img src="docs/screenshots/mobile.png?v=2" alt="Mansio mobile UI — collapsible sidebar with dedicated input bar" width="320" />
   <br />
   <em>Mobile — collapsible sidebar, IME-safe input bar, on-screen modifier keys.</em>
 </p>
@@ -40,13 +40,13 @@
 
 I run **Claude Code** (and other AI coding agents) on a remote dev box. The work is long: multi-step refactors, slow builds, agent loops that chew on a problem for an hour. But every time I closed the browser tab, walked away from my desk, or jumped to my phone, the workflow broke — the SSH session died, the scrollback evaporated, and whatever the agent was in the middle of got yanked out from under it.
 
-So I wrapped `tmux` in a real browser UX. **LociTerm gives the agent a persistent home** — a workspace that doesn't care whether I'm at my desk, on my phone, or rebooting the laptop. Close the tab. Walk to a meeting. Reopen on a different device. The agent is still running, the scrollback is intact, the prompt is exactly where I left it.
+So I wrapped `tmux` in a real browser UX. **Mansio gives the agent a persistent home** — a workspace that doesn't care whether I'm at my desk, on my phone, or rebooting the laptop. Close the tab. Walk to a meeting. Reopen on a different device. The agent is still running, the scrollback is intact, the prompt is exactly where I left it.
 
 That's the whole pitch: **a place your agent can live, not just a session it borrows.**
 
 ---
 
-## Why LociTerm?
+## Why Mansio?
 
 - **Self-hosted SSH replacement in the browser** — no client install, just a URL.
 - **Survives everything** — close the browser, restart the server, switch networks; your shell, your `vim`, your long-running `npm run build` all stay alive thanks to `tmux`.
@@ -61,8 +61,8 @@ That's the whole pitch: **a place your agent can live, not just a session it bor
 ### TL;DR — get a terminal in your browser in 60 seconds
 
 ```bash
-git clone https://github.com/Younkyum/Loci-Terminal.git
-cd Loci-Terminal
+git clone https://github.com/Younkyum/Mansio.git
+cd Mansio
 
 # Linux
 sudo bash deploy/install.sh
@@ -86,7 +86,7 @@ This section walks through everything you'll do day-to-day. Skip to the part you
 
 ### 1. First Launch — Set Your Password
 
-When you open `http://localhost:8080` for the first time, LociTerm shows a setup screen asking you to create a password. This is stored as a bcrypt hash on the server and unlocks future logins via an HttpOnly session cookie (7-day expiry).
+When you open `http://localhost:8080` for the first time, Mansio shows a setup screen asking you to create a password. This is stored as a bcrypt hash on the server and unlocks future logins via an HttpOnly session cookie (7-day expiry).
 
 > **Native install:** the password protects SSH-equivalent access to your host. Use a strong one.
 > **Docker mode:** the container is isolated, but the password still protects whatever you mount into it.
@@ -159,9 +159,9 @@ Drop a file (or several) onto the terminal pane:
 ```
 $ █
    [drag-drop image.png]
-$ /home/lociterm/uploads/image.png█
+$ /home/mansio/uploads/image.png█
    [now type whatever:]
-$ python process.py /home/lociterm/uploads/image.png
+$ python process.py /home/mansio/uploads/image.png
 ```
 
 Default cap: **100 MiB per upload**. Path traversal and NUL bytes are rejected server-side.
@@ -194,7 +194,7 @@ Click the user / power icon in the sidebar (or hit `/api/v1/auth/logout` directl
 
 ## Deployment
 
-LociTerm has two deployment modes. Pick one:
+Mansio has two deployment modes. Pick one:
 
 | | **Native Install** | **Docker** |
 |---|---|---|
@@ -210,8 +210,8 @@ The web terminal will have the same access as logging into the machine directly 
 **Prerequisites:** Go 1.26+, Node.js 20+, npm, tmux, git
 
 ```bash
-git clone https://github.com/Younkyum/Loci-Terminal.git
-cd Loci-Terminal
+git clone https://github.com/Younkyum/Mansio.git
+cd Mansio
 
 # Linux
 sudo bash deploy/install.sh
@@ -220,7 +220,7 @@ sudo bash deploy/install.sh
 bash deploy/install.sh
 ```
 
-The installer detects the OS, builds from source, installs the binary to `/usr/local/bin/lociterm`, and registers a service.
+The installer detects the OS, builds from source, installs the binary to `/usr/local/bin/mansio`, and registers a service.
 
 **Installer flags:**
 
@@ -228,7 +228,7 @@ The installer detects the OS, builds from source, installs the binary to `/usr/l
 |---|---|---|
 | `--host HOST` | Server host | `127.0.0.1` |
 | `--port PORT` | Server port | `8080` |
-| `--data-dir DIR` | SQLite database directory | Linux: `/var/lib/lociterm`, macOS: `~/.local/share/lociterm` |
+| `--data-dir DIR` | SQLite database directory | Linux: `/var/lib/mansio`, macOS: `~/.local/share/mansio` |
 | `--user USER` | System user to run as | current user |
 | `--help` | Show help | — |
 
@@ -236,41 +236,41 @@ The installer detects the OS, builds from source, installs the binary to `/usr/l
 
 ```bash
 # Status / restart / logs
-systemctl status lociterm@$(whoami)
-systemctl restart lociterm@$(whoami)
-journalctl -u lociterm@$(whoami) -f
+systemctl status mansio@$(whoami)
+systemctl restart mansio@$(whoami)
+journalctl -u mansio@$(whoami) -f
 
 # Custom host/port/data dir
-sudo bash deploy/install.sh --host 127.0.0.1 --port 3000 --data-dir /var/lib/lociterm
+sudo bash deploy/install.sh --host 127.0.0.1 --port 3000 --data-dir /var/lib/mansio
 
 # Uninstall (keeps data dir)
 sudo bash deploy/uninstall.sh
 
 # Wipe data too
-sudo rm -rf /var/lib/lociterm
+sudo rm -rf /var/lib/mansio
 ```
 
-Data dir: `/var/lib/lociterm` · Service unit: `/etc/systemd/system/lociterm@.service`
+Data dir: `/var/lib/mansio` · Service unit: `/etc/systemd/system/mansio@.service`
 
 #### macOS (launchd)
 
 ```bash
-launchctl list | grep lociterm                       # status
-launchctl stop  com.loci-terminal.lociterm           # stop
-launchctl start com.loci-terminal.lociterm           # start
-tail -f ~/Library/Logs/lociterm/stdout.log           # logs
+launchctl list | grep mansio                       # status
+launchctl stop  com.mansio.mansio           # stop
+launchctl start com.mansio.mansio           # start
+tail -f ~/Library/Logs/mansio/stdout.log           # logs
 
 # Uninstall (keeps data dir + logs)
 bash deploy/uninstall.sh
 ```
 
-Data dir: `~/.local/share/lociterm` · Logs: `~/Library/Logs/lociterm/` · plist: `~/Library/LaunchAgents/com.loci-terminal.lociterm.plist`
+Data dir: `~/.local/share/mansio` · Logs: `~/Library/Logs/mansio/` · plist: `~/Library/LaunchAgents/com.mansio.mansio.plist`
 
-> **macOS Full Disk Access:** macOS sandboxes access to `~/Documents`, `~/Desktop`, etc. On first launch LociTerm hits `/api/v1/health`, and if those directories are unreadable, the web UI shows a full-screen modal with step-by-step instructions: System Settings → Privacy & Security → Full Disk Access → add `/usr/local/bin/lociterm`. The installer also opens System Settings to the right pane automatically.
+> **macOS Full Disk Access:** macOS sandboxes access to `~/Documents`, `~/Desktop`, etc. On first launch Mansio hits `/api/v1/health`, and if those directories are unreadable, the web UI shows a full-screen modal with step-by-step instructions: System Settings → Privacy & Security → Full Disk Access → add `/usr/local/bin/mansio`. The installer also opens System Settings to the right pane automatically.
 
 #### Cloudflare Tunnel
 
-Works out of the box. Keep LociTerm bound to loopback and point your tunnel at `http://localhost:8080` — Cloudflare handles HTTPS and WebSocket proxying automatically.
+Works out of the box. Keep Mansio bound to loopback and point your tunnel at `http://localhost:8080` — Cloudflare handles HTTPS and WebSocket proxying automatically.
 
 ```bash
 cloudflared tunnel --url http://localhost:8080
@@ -283,17 +283,17 @@ For a permanent tunnel, follow Cloudflare's named-tunnel docs and route a hostna
 Runs in an isolated **Ubuntu 24.04** container preloaded with **Node.js 20**, **Python 3**, **build-essential**, **zsh**, **git**, **tmux**, and CJK fonts. The home directory persists via a Docker volume.
 
 ```bash
-git clone https://github.com/Younkyum/Loci-Terminal.git
-cd Loci-Terminal
+git clone https://github.com/Younkyum/Mansio.git
+cd Mansio
 docker compose up -d --build
 # Open http://localhost:8080
 ```
 
-The compose file publishes `127.0.0.1:8080` by default. Set `LOCITERM_PORT=3000` to change the host port.
+The compose file publishes `127.0.0.1:8080` by default. Set `MANSIO_PORT=3000` to change the host port.
 
 **Persists across container restarts:**
-- `/home/lociterm` → installed tools, project files, shell configs (volume `lociterm-home`)
-- `/data` → workspace/session metadata (volume `lociterm-data`)
+- `/home/mansio` → installed tools, project files, shell configs (volume `mansio-home`)
+- `/data` → workspace/session metadata (volume `mansio-data`)
 
 **Does NOT persist:**
 - tmux sessions (running processes) — killed when the container restarts
@@ -306,7 +306,7 @@ docker compose logs -f               # follow logs
 docker compose restart               # restart (loses tmux)
 docker compose down                  # stop + remove (keeps volumes)
 docker compose down -v               # stop + remove + WIPE all data
-docker compose exec lociterm bash    # shell into the container
+docker compose exec mansio bash    # shell into the container
 ```
 
 ### CLI Options (the binary itself)
@@ -320,8 +320,10 @@ docker compose exec lociterm bash    # shell into the container
 Run directly:
 
 ```bash
-./lociterm --host 127.0.0.1 --port 9000 --data-dir /tmp/lociterm-data
+./mansio --host 127.0.0.1 --port 9000 --data-dir /tmp/mansio-data
 ```
+
+> **Upgrading from earlier builds:** the server now binds to `127.0.0.1` by default instead of all interfaces. Pass `--host 0.0.0.0` if you need external access (and front it with HTTPS). Env vars previously prefixed `LOCITERM_*` are now `MANSIO_*` (e.g. `MANSIO_PORT`, `MANSIO_HOST`, `MANSIO_DATA_DIR`).
 
 ---
 
@@ -329,14 +331,14 @@ Run directly:
 
 | Symptom | Cause / Fix |
 |---|---|
-| **Web UI shows "Permission Required" modal (macOS)** | Add `/usr/local/bin/lociterm` to System Settings → Privacy & Security → Full Disk Access. Click "I've fixed it — Check again". |
-| **`systemctl status lociterm@<user>` shows failure** | `journalctl -u lociterm@<user> -e` for the actual error. Common: port 8080 already taken — reinstall with `--port`. |
+| **Web UI shows "Permission Required" modal (macOS)** | Add `/usr/local/bin/mansio` to System Settings → Privacy & Security → Full Disk Access. Click "I've fixed it — Check again". |
+| **`systemctl status mansio@<user>` shows failure** | `journalctl -u mansio@<user> -e` for the actual error. Common: port 8080 already taken — reinstall with `--port`. |
 | **Tabs are empty after a Docker restart** | Expected — tmux dies with the container. Use native install if you need tmux to survive restarts. |
 | **Can't paste / clipboard blocked** | Browser permission. Some browsers require HTTPS for the Clipboard API; front the server with Cloudflare Tunnel. |
 | **iOS keyboard zooms in on focus** | Already mitigated (16 px font + scale). If you still see it, hard-refresh the page; old build cached. |
 | **CJK characters render as boxes** | Native install: install a CJK font on your OS. Docker: already includes `fonts-noto-cjk`. |
 | **"WebSocket connection failed"** | Check that your reverse proxy forwards `Upgrade` / `Connection` headers. Cloudflare Tunnel does this by default. |
-| **Forgot password** | Native: stop the service, delete the password row from `<data-dir>/lociterm.db` (or just delete the DB and lose all metadata), restart. Docker: `docker compose down -v && docker compose up -d --build`. |
+| **Forgot password** | Native: stop the service, delete the password row from `<data-dir>/mansio.db` (or just delete the DB and lose all metadata), restart. Docker: `docker compose down -v && docker compose up -d --build`. |
 
 ---
 
@@ -423,8 +425,8 @@ GET    /api/v1/ws/terminal/:sessionId     # WebSocket terminal
 ## Project Structure
 
 ```
-loci-terminal/
-├── cmd/lociterm/main.go              # Entrypoint, embed.FS, graceful shutdown
+mansio/
+├── cmd/mansio/main.go              # Entrypoint, embed.FS, graceful shutdown
 ├── internal/
 │   ├── server/                       # HTTP routing, auth middleware, /health
 │   ├── api/                          # REST handlers (workspace, session, auth, upload)
@@ -452,7 +454,7 @@ loci-terminal/
 ├── deploy/
 │   ├── install.sh                    # Cross-platform installer (Linux+macOS)
 │   ├── uninstall.sh                  # Cross-platform uninstaller
-│   └── lociterm.service              # systemd unit template (Linux)
+│   └── mansio.service              # systemd unit template (Linux)
 ├── Dockerfile                        # Multi-stage build (Ubuntu 24.04 runtime)
 ├── docker-compose.yml                # Docker deployment with persistent volumes
 └── Makefile
@@ -473,7 +475,7 @@ make dev-backend       # Terminal 1: Go server on :8080
 make dev-frontend      # Terminal 2: Vite dev server with proxy
 
 # Build a single self-contained binary
-make build             # → ./lociterm
+make build             # → ./mansio
 
 # Clean build artifacts
 make clean
@@ -530,7 +532,7 @@ See [TODO.md](TODO.md) for the full backlog.
 
 **GPL-3.0-or-later** — see [LICENSE](LICENSE) for the full text.
 
-LociTerm is free software: you can redistribute it and/or modify it
+Mansio is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
 Free Software Foundation, either version 3 of the License, or (at your
 option) any later version.
@@ -538,4 +540,4 @@ option) any later version.
 This is a copyleft license: any fork, redistribution, or modified
 version you publish must also be licensed under GPL-3.0-or-later and
 ship its source code. For third-party components bundled with
-LociTerm, see [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
+Mansio, see [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).

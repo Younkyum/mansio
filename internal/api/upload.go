@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/younkyumjin/lociterm/internal/store"
+	"github.com/younkyumjin/mansio/internal/store"
 )
 
 const (

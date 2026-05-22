@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { ThemeMode } from '../lib/theme';
 
-const STORAGE_KEY = 'lociterm-theme';
+const STORAGE_KEY = 'mansio-theme';
 
 function isMode(v: unknown): v is ThemeMode {
   return v === 'system' || v === 'light' || v === 'dark';
